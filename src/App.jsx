@@ -1,9 +1,18 @@
 import { motion } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { Download, Mail, Linkedin, MapPin, Phone, Moon, Sun } from 'lucide-react';
+import { Download, Mail, Linkedin, MapPin, Phone, Moon, Sun, Send } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [sending, setSending] = useState(false);
+  const [formStatus, setFormStatus] = useState({ type: '', message: '' });
   
   const aboutRef = useRef(null);
   const educationRef = useRef(null);
@@ -11,6 +20,7 @@ function App() {
   const projectsRef = useRef(null);
   const skillsRef = useRef(null);
   const contactRef = useRef(null);
+  const formRef = useRef();
 
   useEffect(() => {
     const savedTheme = window.localStorage?.getItem('theme');
@@ -36,6 +46,54 @@ function App() {
     link.href = '/Ranim_Ahmadi_CV.pdf';
     link.download = 'Ranim_Ahmadi_CV.pdf';
     link.click();
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    setFormStatus({ type: '', message: '' });
+
+    try {
+      // Remplacez ces valeurs par vos propres identifiants EmailJS
+      const result = await emailjs.send(
+        'service_z2k9t0a',      // Votre Service ID
+        'template_apg0uod',     // Votre Template ID
+        {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          to_email: 'ahmadiranim.pro@gmail.com'
+        },
+        'nabOiuKUxV5-lms5S'       // Votre Public Key
+      );
+
+      setFormStatus({
+        type: 'success',
+        message: 'Message envoyé avec succès ! Je vous répondrai bientôt.'
+      });
+      
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      setFormStatus({
+        type: 'error',
+        message: 'Erreur lors de l\'envoi du message. Veuillez réessayer.'
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   const experiences = [
@@ -192,17 +250,103 @@ function App() {
           viewport={{ once: true }}
           className="mb-20"
         >
-          <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-3xl shadow-xl p-8 md:p-10 border transition-colors duration-300`}>
-            <motion.div initial={{ scale: 0.9 }} whileInView={{ scale: 1 }} transition={{ duration: 0.5 }}>
-              <h2 className={`text-2xl font-bold mb-4 ${darkMode ? 'bg-gradient-to-r from-blue-400 to-indigo-400' : 'bg-gradient-to-r from-blue-600 to-indigo-600'} bg-clip-text text-transparent`}>
-                À propos de moi
-              </h2>
-              <div className={`h-1 w-20 ${darkMode ? 'bg-gradient-to-r from-blue-400 to-indigo-400' : 'bg-gradient-to-r from-blue-600 to-indigo-600'} rounded-full mb-6`}></div>
-              <p className={`text-base leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Left side - Text content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <h1 className={`text-5xl md:text-6xl font-black mb-6 ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                Hey, I'm <span className={`${darkMode ? 'bg-gradient-to-r from-blue-400 to-indigo-400' : 'bg-gradient-to-r from-blue-600 to-indigo-600'} bg-clip-text text-transparent`}>Ranim.</span>
+              </h1>
+              
+              <p className={`text-xl mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Je suis <span className={`font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>Ingénieure Informatique</span>
+              </p>
+              
+              <p className={`text-base leading-relaxed mb-8 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Ingénieure en informatique, j'aime participer à des projets concrets où je peux apporter des solutions efficaces. 
                 Mon atout principal est ma capacité à m'adapter rapidement et à apprendre en permanence pour répondre aux besoins des projets. 
-                Je recherche un environnement de travail stimulant où je pourrai contribuer activement et développer mes compétences sur des technologies variées.
+                Je recherche un environnement de travail stimulant où je pourrai contribuer activement et développer mes compétences sur des technologies variées. 😊
               </p>
+
+              <div className="flex gap-4 flex-wrap">
+                <motion.a
+                  href="mailto:ahmadiranim.pro@gmail.com"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Contactez-moi 👋
+                </motion.a>
+                
+                <motion.button
+                  onClick={() => scrollToSection(projectsRef)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-8 py-3 ${darkMode ? 'bg-gray-800 text-gray-300 border-gray-600' : 'bg-white text-gray-700 border-gray-300'} border-2 rounded-full font-medium hover:border-blue-600 transition-all duration-300`}
+                >
+                  Découvrir mes projets 💼
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* Right side - Photo */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="relative flex justify-center"
+            >
+              <div className="relative">
+                {/* Blue background card */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl transform rotate-6"></div>
+                
+                {/* Photo container with border */}
+                <div className={`relative ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-8 rounded-3xl overflow-hidden shadow-2xl w-full max-w-md`}>
+                  <img 
+                    src="/photo.jpg" 
+                    alt="Ranim Ahmadi" 
+                    className="w-full h-auto object-cover"
+                    style={{
+                      aspectRatio: '3/4'
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = '<div class="w-full h-96 flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100"><span class="text-6xl font-bold text-blue-600">RA</span></div>';
+                    }}
+                  />
+                </div>
+
+                {/* Floating social icons */}
+                <motion.a
+                  href="https://linkedin.com/in/ranim-ahmadi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.1, y: -5 }}
+                  className="absolute -right-4 top-1/4 p-4 bg-blue-600 text-white rounded-2xl shadow-xl"
+                >
+                  <Linkedin size={24} />
+                </motion.a>
+
+                <motion.a
+                  href="mailto:ahmadiranim.pro@gmail.com"
+                  whileHover={{ scale: 1.1, y: -5 }}
+                  className="absolute -right-4 top-1/2 p-4 bg-indigo-600 text-white rounded-2xl shadow-xl"
+                >
+                  <Mail size={24} />
+                </motion.a>
+
+                <motion.div
+                  whileHover={{ scale: 1.1, y: -5 }}
+                  className="absolute -right-4 top-3/4 p-4 bg-purple-600 text-white rounded-2xl shadow-xl"
+                >
+                  <Phone size={24} />
+                </motion.div>
+              </div>
             </motion.div>
           </div>
         </motion.section>
@@ -404,71 +548,152 @@ function App() {
           viewport={{ once: true }}
           className="mb-12"
         >
-          <div className={`${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-blue-600 to-indigo-600'} rounded-3xl shadow-2xl p-8 md:p-10 text-white transition-colors duration-300`}>
-            <h2 className="text-2xl font-bold mb-4">Contact</h2>
-            <div className="h-1 w-20 bg-white rounded-full mb-8"></div>
+          <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-3xl shadow-xl p-8 md:p-10 border transition-colors duration-300`}>
+            <h2 className={`text-2xl font-bold mb-4 ${darkMode ? 'bg-gradient-to-r from-blue-400 to-indigo-400' : 'bg-gradient-to-r from-blue-600 to-indigo-600'} bg-clip-text text-transparent`}>
+              Envoyez-moi un message
+            </h2>
+            <div className={`h-1 w-20 ${darkMode ? 'bg-gradient-to-r from-blue-400 to-indigo-400' : 'bg-gradient-to-r from-blue-600 to-indigo-600'} rounded-full mb-8`}></div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <motion.a
-                  href="mailto:ahmadiranim.pro@gmail.com"
-                  whileHover={{ x: 5 }}
-                  className={`flex items-center gap-3 p-4 ${darkMode ? 'bg-gray-700/50' : 'bg-white/10'} backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300`}
-                >
-                  <div className="p-2.5 bg-white/20 rounded-lg">
-                    <Mail size={20} />
-                  </div>
-                  <div>
-                    <p className={`text-xs ${darkMode ? 'text-gray-300' : 'text-blue-100'}`}>Email</p>
-                    <p className="font-medium text-sm">ahmadiranim.pro@gmail.com</p>
-                  </div>
-                </motion.a>
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Left side - Info */}
+              <div>
+                <p className={`text-base mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Vous avez un projet en tête ou vous souhaitez discuter d'une opportunité ? 
+                  N'hésitez pas à me contacter via ce formulaire. Je vous répondrai dans les plus brefs délais !
+                </p>
 
-                <motion.a
-                  href="tel:+21622448135"
-                  whileHover={{ x: 5 }}
-                  className={`flex items-center gap-3 p-4 ${darkMode ? 'bg-gray-700/50' : 'bg-white/10'} backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300`}
-                >
-                  <div className="p-2.5 bg-white/20 rounded-lg">
-                    <Phone size={20} />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-3 ${darkMode ? 'bg-gray-700' : 'bg-blue-50'} rounded-lg`}>
+                      <Mail className={darkMode ? 'text-blue-400' : 'text-blue-600'} size={20} />
+                    </div>
+                    <div>
+                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Email</p>
+                      <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>ahmadiranim.pro@gmail.com</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className={`text-xs ${darkMode ? 'text-gray-300' : 'text-blue-100'}`}>Téléphone</p>
-                    <p className="font-medium text-sm">+216 22 448 135</p>
+
+                  <div className="flex items-center gap-3">
+                    <div className={`p-3 ${darkMode ? 'bg-gray-700' : 'bg-indigo-50'} rounded-lg`}>
+                      <Linkedin className={darkMode ? 'text-indigo-400' : 'text-indigo-600'} size={20} />
+                    </div>
+                    <div>
+                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>LinkedIn</p>
+                      <a 
+                        href="https://linkedin.com/in/ranim-ahmadi" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`text-sm font-medium ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-800 hover:text-blue-600'} transition-colors`}
+                      >
+                        linkedin.com/in/ranim-ahmadi
+                      </a>
+                    </div>
                   </div>
-                </motion.a>
+
+                  <div className="flex items-center gap-3">
+                    <div className={`p-3 ${darkMode ? 'bg-gray-700' : 'bg-purple-50'} rounded-lg`}>
+                      <MapPin className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={20} />
+                    </div>
+                    <div>
+                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Localisation</p>
+                      <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Tunis, Tunisie</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-4">
-                <motion.a
-                  href="https://linkedin.com/in/ranim-ahmadi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ x: 5 }}
-                  className={`flex items-center gap-3 p-4 ${darkMode ? 'bg-gray-700/50' : 'bg-white/10'} backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300`}
-                >
-                  <div className="p-2.5 bg-white/20 rounded-lg">
-                    <Linkedin size={20} />
-                  </div>
-                  <div>
-                    <p className={`text-xs ${darkMode ? 'text-gray-300' : 'text-blue-100'}`}>LinkedIn</p>
-                    <p className="font-medium text-sm">linkedin.com/in/ranim-ahmadi</p>
-                  </div>
-                </motion.a>
+              {/* Right side - Form */}
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Nom complet *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-300 focus:border-blue-400' : 'bg-white border-gray-300 text-gray-900 focus:border-blue-600'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors`}
+                    placeholder="Votre nom"
+                  />
+                </div>
 
-                <motion.div
-                  whileHover={{ x: 5 }}
-                  className={`flex items-center gap-3 p-4 ${darkMode ? 'bg-gray-700/50' : 'bg-white/10'} backdrop-blur-sm rounded-xl`}
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-300 focus:border-blue-400' : 'bg-white border-gray-300 text-gray-900 focus:border-blue-600'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors`}
+                    placeholder="votre.email@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Sujet *
+                  </label>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    required
+                    className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-300 focus:border-blue-400' : 'bg-white border-gray-300 text-gray-900 focus:border-blue-600'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors`}
+                    placeholder="Objet de votre message"
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Message *
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    rows="5"
+                    className={`w-full px-4 py-3 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-300 focus:border-blue-400' : 'bg-white border-gray-300 text-gray-900 focus:border-blue-600'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors resize-none`}
+                    placeholder="Votre message..."
+                  ></textarea>
+                </div>
+
+                {formStatus.message && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`p-4 rounded-lg ${formStatus.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}
+                  >
+                    {formStatus.message}
+                  </motion.div>
+                )}
+
+                <motion.button
+                  type="submit"
+                  disabled={sending}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 ${sending ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  <div className="p-2.5 bg-white/20 rounded-lg">
-                    <MapPin size={20} />
-                  </div>
-                  <div>
-                    <p className={`text-xs ${darkMode ? 'text-gray-300' : 'text-blue-100'}`}>Localisation</p>
-                    <p className="font-medium text-sm">Tunis, Tunisie</p>
-                  </div>
-                </motion.div>
-              </div>
+                  {sending ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Send size={20} />
+                      Envoyer le message
+                    </>
+                  )}
+                </motion.button>
+              </form>
             </div>
           </div>
         </motion.section>
